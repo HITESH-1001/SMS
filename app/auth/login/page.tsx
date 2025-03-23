@@ -1,22 +1,22 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect } from "react"
+import { AccessibilityMenu } from "@/components/accessibility-menu"
+import { useAuth } from "@/components/auth-provider"
+import EnhancedChatbot from "@/components/enhanced-chatbot"
+import { LanguageSelector } from "@/components/language-selector"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { motion } from "framer-motion"
 import { AlertCircle, Loader2, MessageSquare } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import EnhancedChatbot from "@/components/enhanced-chatbot"
-import { useAuth } from "@/components/auth-provider"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { LanguageSelector } from "@/components/language-selector"
-import { AccessibilityMenu } from "@/components/accessibility-menu"
+import type React from "react"
+import { useEffect, useState } from "react"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -333,7 +333,7 @@ export default function LoginPage() {
             <p className="text-sm text-muted-foreground text-center w-full">
               Don't have an account?{" "}
               <Link href="/auth/register" className="text-primary font-medium">
-                Register
+                Registeryouu idiot
               </Link>
             </p>
           </CardFooter>
