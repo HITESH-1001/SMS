@@ -1,16 +1,18 @@
+
+
 "use client"
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { X, Send, Bot, Paperclip, ImageIcon } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { motion } from "framer-motion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { motion } from "framer-motion"
+import { Bot, ImageIcon, Paperclip, Send, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 type Message = {
   id: string
@@ -21,6 +23,7 @@ type Message = {
     type: "image" | "file"
     url: string
     name: string
+    objectUrl?: string // Added to track object URLs
   }[]
 }
 
@@ -46,6 +49,22 @@ export default function EnhancedChatbot({ onClose, userName = "User", userRole =
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // Clean up object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      // Revoke all object URLs created for attachments when component unmounts
+      messages.forEach((message) => {
+        if (message.attachments) {
+          message.attachments.forEach((attachment) => {
+            if (attachment.objectUrl) {
+              URL.revokeObjectURL(attachment.objectUrl)
+            }
+          })
+        }
+      })
+    }
+  }, [messages])
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
@@ -57,16 +76,23 @@ export default function EnhancedChatbot({ onClose, userName = "User", userRole =
   const handleSendMessage = () => {
     if (input.trim() === "" && attachments.length === 0) return
 
+    // Create object URLs for attachments
+    const attachmentData = attachments.map((file) => {
+      const objectUrl = URL.createObjectURL(file)
+      return {
+        type: file.type.startsWith("image/") ? "image" as const : "file" as const,
+        url: objectUrl,
+        objectUrl: objectUrl, // Store the object URL for cleanup
+        name: file.name,
+      }
+    })
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input,
       sender: "user",
       timestamp: new Date(),
-      attachments: attachments.map((file) => ({
-        type: file.type.startsWith("image/") ? "image" : "file",
-        url: URL.createObjectURL(file),
-        name: file.name,
-      })),
+      attachments: attachmentData,
     }
 
     setMessages((prev) => [...prev, userMessage])
@@ -161,7 +187,14 @@ export default function EnhancedChatbot({ onClose, userName = "User", userRole =
   }
 
   const removeAttachment = (index: number) => {
+    // Get the attachment to be removed
+    const attachmentToRemove = attachments[index]
+
+    // Remove attachment from the state
     setAttachments((prev) => prev.filter((_, i) => i !== index))
+
+    // No need to manually revoke object URLs here as they haven't been created yet
+    // Object URLs are only created when the message is sent
   }
 
   const handleSubmitComplaint = () => {
@@ -224,9 +257,8 @@ export default function EnhancedChatbot({ onClose, userName = "User", userRole =
                         </Avatar>
                       )}
                       <div
-                        className={`rounded-lg px-4 py-2 ${
-                          message.sender === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-                        }`}
+                        className={`rounded-lg px-4 py-2 ${message.sender === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                          }`}
                       >
                         <p className="whitespace-pre-wrap">{message.content}</p>
 
@@ -392,4 +424,3 @@ export default function EnhancedChatbot({ onClose, userName = "User", userRole =
     </Card>
   )
 }
-

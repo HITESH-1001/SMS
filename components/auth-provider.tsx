@@ -1,3 +1,5 @@
+
+
 "use client"
 
 import type React from "react"
@@ -91,9 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(userData)
       localStorage.setItem("sms_user", JSON.stringify(userData))
-
-      redirectBasedOnRole(userData.role)
-
+      setTimeout(() => redirectBasedOnRole(userData.role), 100)
       return true
     } catch (error) {
       console.error("Login error:", error)
@@ -160,13 +160,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const redirectBasedOnRole = (role: string) => {
-    if (role === "admin") {
-      router.push("/admin")
-    } else if (role === "authority") {
-      router.push("/authority")
-    } else {
-      router.push("/dashboard")
-    }
+    console.log("Redirecting user to role:", role) 
+    // if (role === "admin") {
+    //   router.push("/admin")
+    // } else if (role === "authority") {
+    //   router.push("/authority")
+    // } else {
+    //   router.push("/dashboard")
+    // }
+    setTimeout(() => {
+      if (role === "admin") {
+        router.push("/admin")
+      } else if (role === "authority") {
+        router.push("/authority")
+      } else {
+        router.push("/dashboard")
+      }
+    }, 100) 
   }
 
   const logout = () => {
